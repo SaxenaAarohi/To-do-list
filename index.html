@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+   <style>
+        body {
+            background-color: black;
+        }
+    .cut{
+        text-decoration:line-through;
+    }
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .card {
+            background-color: rgb(255, 0, 128);
+            margin-top: 40px;
+            width: 20%;
+            padding-left: 15px;
+            padding-right: 10px;
+            padding-bottom: 10px;
+            border-top-left-radius: 10px; /* top-left corner */
+            border-top-right-radius: 10px; 
+        }
+
+        .card input, button {
+            border-radius: 10px;
+        }
+
+        .card input {
+            width: 70%;
+        }
+
+        .main {
+            background-color: rgb(255, 0, 128);
+            width: 20%;
+            padding-left: 15px;
+            padding-right: 10px;
+            padding-bottom: 10px;
+            display: none;
+            justify-content: space-between;
+            word-wrap: normal;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+
+        }
+
+        .box {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start; /* Align checkbox and text to the left */
+            align-items: center; /* Vertically center items */
+            margin-bottom: 10px; /* Add some space between tasks */
+        }
+
+        .box label {
+            margin-left: 10px; 
+            flex-grow: 1; 
+        }
+        .card button{
+            background-color: black;
+            color: white;
+        }
+
+        .box input {
+            margin-right: 10px; /* Space between checkbox and label */
+        }
+
+        .but {
+            border-radius: 10px;
+            padding: 0px 10px;
+            color: white;
+            background-color: rgb(0, 0, 0);
+            cursor: pointer;
+            margin-left: auto; /* Push the button to the far right */
+        }
+        @media (max-width: 480px) {
+            .card {
+                width: 90%;
+                padding: 10px;
+            }
+            .main{
+                width: 90%;
+                padding: 10px;
+            }
+            .card input, .card button {
+                width: 100%;
+                font-size: 14px;
+            }
+
+            .box {
+                display :flex;
+                align-items: flex-start;
+            }
+
+            .but {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+       @media (max-width: 768px) {
+            .card {
+                width: 80%;
+                padding: 15px;
+            }
+
+            .card input, .card button {
+                width: 100%;
+                font-size: 14px;
+            }
+            .card button{
+                margin-top:10px;
+                width:85px;
+                margin-left:120px;
+            }
+            .main {
+                width: 82.3%;
+                padding: 10px;
+            }
+      .box {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+            .box input {
+                width: 20px;
+                height: 20px;
+            }
+
+            .box label {
+                font-size: 14px;
+            }
+
+            .but {
+                font-size: 14px;
+                width:60px;
+                margin-top:0px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+       <div class="card">
+        <h1>To do List</h1>
+        <input type="text"class="input"  placeholder="Add your task"> 
+        <button onclick="addtask()">Add task</button>
+        
+       </div>
+       <div class="main">
+        
+       </div>
+    </div>
+</body>
+<script>
+//   const button=document.createElement("button");
+const task=document.getElementsByClassName("input")[0];
+    function addtask()
+    {
+        
+         const value=task.value.trim();
+        if(value==""){
+            alert("Enter a task");
+        }
+        else{
+            const  timeId=Date.now();
+            create(timeId,value);
+            saveToLocal(timeId,value,false); 
+        }  
+    }
+    task.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      addtask();
+    }
+  });
+        function create(timeId,value,ischeck=false){
+            document.querySelector(".main").style.display="block";
+            const label =document.createElement("label");
+            const div =document.createElement("div");
+            div.dataset.id=timeId;
+            label.textContent=value;
+            div.className="box";
+            const check=document.createElement("input");
+            check.type="checkbox";
+            check.className=check;
+            check.checked=ischeck;
+            if(ischeck){
+                label.classList.add("cut");
+
+            }
+            div.prepend(check);
+            label.setAttribute("for","check");
+            div.append(label);
+            const edit=document.createElement("button");
+            edit.innerText="Edit";
+            edit.addEventListener("click",Edit(task,edit));
+            const but=document.createElement("button");
+            but.className="but";
+            but.innerText="Delete";
+            div.append(but);
+            const par=document.getElementsByClassName("main")[0]
+            par.append(div);
+           
+            but.addEventListener("click",()=>{
+                const divpar = but.parentElement.remove();
+                deleteFromLocal(timeId);
+            })
+            check.addEventListener("change",()=>{
+                if (check.checked) {
+                    label.classList.add("cut");
+                    flag=true;
+                } 
+                else {
+                    label.classList.remove("cut"); 
+                }
+                saveToLocal(timeId, value, check.checked);
+            })
+        
+        document.querySelector(".input").value = ""; 
+    }
+    function Edit(inptext,editbut){
+        const inpbar=document.createElement("input");
+    inpbar.textContent=inptext.value;
+    const pra=task.parentElement;
+    pra.replaceChild(inpbar,inptext);
+    // editbut.innerText="Save";
+    // const save=document.createElement("butoon");
+    // save.innerText="Save";
+    // save.addEventListener("click",saveval(inpbar));
+    }
+    // function saveval(val){
+    //     const  timeId=Date.now();
+    //  create(timeId,val);
+    //  saveToLocal(timeId,val,false)
+    // } 
+    
+    function  saveToLocal(timeId,value,ischeck=false) {
+        const string=localStorage.getItem("task");
+        var obj=(string)?JSON.parse(string):{};
+        obj[timeId] = { value: value, isChecked: ischeck};
+        const StringToobj=JSON.stringify(obj);
+        localStorage.setItem("task",StringToobj);
+    }
+    function deleteFromLocal(timeId){
+        const string =localStorage.getItem("task");
+        var obj=(string)?JSON.parse(string):{};
+        delete obj[timeId];
+        const StringToobj=JSON.stringify(obj);
+        localStorage.setItem("task",StringToobj);             
+    }
+    document.addEventListener("DOMContentLoaded",()=>{
+        ReloadAllboxes();
+    })
+    function ReloadAllboxes(){        
+        const string=localStorage.getItem("task");
+        var obj=(string)?JSON.parse(string):{};
+        for (const key in obj) {
+            create(key, obj[key].value, obj[key].isChecked); 
+        }
+    }  
+        
+
+
+</script>
+</html>
